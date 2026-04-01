@@ -19,8 +19,8 @@ type Video struct {
 	URL   string `json:"url"`
 }
 
-func loadVideos() ([]Video, error) {
-	data, err := os.ReadFile("videos.json")
+func loadVideos(file string) ([]Video, error) {
+	data, err := os.ReadFile(file)
 	if err != nil {
 		return nil, err
 	}
@@ -28,19 +28,19 @@ func loadVideos() ([]Video, error) {
 	return videos, json.Unmarshal(data, &videos)
 }
 
-func postHood(dg *discordgo.Session, channelID string) {
-	videos, err := loadVideos()
+func post(dg *discordgo.Session, channelID, file, msg string) {
+	videos, err := loadVideos(file)
 	if err != nil {
 		log.Println("error loading videos:", err)
 		return
 	}
 	if len(videos) == 0 {
-		log.Println("no videos in dataset")
+		log.Println("no videos in dataset:", file)
 		return
 	}
 	v := videos[rand.Intn(len(videos))]
-	msg := fmt.Sprintf("Happy Harry Hood Friday!\n**%s**\n%s", v.Title, v.URL)
-	if _, err := dg.ChannelMessageSend(channelID, msg); err != nil {
+	full := fmt.Sprintf("%s\n**%s**\n%s", msg, v.Title, v.URL)
+	if _, err := dg.ChannelMessageSend(channelID, full); err != nil {
 		log.Println("error sending message:", err)
 	} else {
 		log.Printf("posted: %s", v.Title)
@@ -67,6 +67,7 @@ func main() {
 
 	log.Println("bot connected to Discord")
 
+
 	loc, err := time.LoadLocation("America/Chicago")
 	if err != nil {
 		log.Fatal("error loading timezone:", err)
@@ -74,15 +75,21 @@ func main() {
 
 	c := cron.New(cron.WithLocation(loc))
 	_, err = c.AddFunc("0 9 * * 5", func() {
-		postHood(dg, channelID)
+		post(dg, channelID, "videos.json", "Happy Harry Hood Friday!")
 	})
 	if err != nil {
-		log.Fatal("error scheduling cron:", err)
+		log.Fatal("error scheduling Hood cron:", err)
+	}
+	_, err = c.AddFunc("0 11 * * 5", func() {
+		post(dg, channelID, "franklins_tower_videos.json", "HFTF")
+	})
+	if err != nil {
+		log.Fatal("error scheduling Franklin's Tower cron:", err)
 	}
 	c.Start()
 	defer c.Stop()
 
-	log.Println("scheduler running — will post every Friday at 9:00am CST")
+	log.Println("scheduler running — Hood at 9am, Franklin's Tower at 11am, every Friday CST")
 
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
