@@ -80,7 +80,7 @@ func main() {
 	if err != nil {
 		log.Fatal("error scheduling Hood cron:", err)
 	}
-	_, err = c.AddFunc("0 11 * * 5", func() {
+	_, err = c.AddFunc("0 16 * * 5", func() {
 		post(dg, channelID, "franklins_tower_videos.json", "HFTF")
 	})
 	if err != nil {
@@ -89,7 +89,7 @@ func main() {
 	c.Start()
 	defer c.Stop()
 
-	log.Println("scheduler running — Hood at 9am, Franklin's Tower at 11am, every Friday CST")
+	log.Println("scheduler running — Hood at 9am, Franklin's Tower at 4pm, every Friday CST")
 
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
