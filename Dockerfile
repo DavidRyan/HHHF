@@ -10,4 +10,5 @@ RUN apk --no-cache add tzdata
 WORKDIR /app
 COPY --from=builder /app/bot .
 COPY videos.json .
+COPY franklins_tower_videos.json .
 CMD ["./bot"]
