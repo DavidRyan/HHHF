@@ -6,7 +6,6 @@ COPY . .
 RUN go build -o bot .
 
 FROM alpine:latest
-RUN apk --no-cache add tzdata
 WORKDIR /app
 COPY --from=builder /app/bot .
 COPY videos.json .

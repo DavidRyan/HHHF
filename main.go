@@ -1,6 +1,7 @@
 package main
 
 import (
+	_ "time/tzdata"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -66,8 +67,7 @@ func main() {
 	defer dg.Close()
 
 	log.Println("bot connected to Discord")
-	post(dg, channelID, "franklins_tower_videos.json", "HFTF")
-
+	post(dg, channelID, "videos.json", "Happy Harry Hood Friday!")
 
 	loc, err := time.LoadLocation("America/Chicago")
 	if err != nil {
